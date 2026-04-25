@@ -3,357 +3,563 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Truco</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-
-<!-- Firebase v8 (compatible sin módulos) -->
+<title>Truco Argentino</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <style>
 :root {
-  --verde: #1a3a1a;
-  --verde-claro: #2d5a2d;
-  --verde-mesa: #0f2a0f;
-  --dorado: #c9a84c;
-  --dorado-claro: #e8c96a;
-  --crema: #f5e6c8;
-  --rojo: #8b1a1a;
-  --texto: #f0ddb0;
+  --celeste: #74ACDF;
+  --celeste-dark: #3a7fbf;
+  --celeste-deep: #1a4a7a;
+  --blanco: #F8F8FF;
+  --dorado: #D4A017;
+  --dorado-claro: #F0C040;
+  --dorado-suave: rgba(212,160,23,0.3);
+  --azul-noche: #0a1628;
+  --azul-medio: #102040;
+  --azul-carta: #0d1f35;
+  --texto: #e8f4ff;
+  --texto-suave: rgba(232,244,255,0.6);
+  --sombra: rgba(0,0,0,0.5);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
 body {
-  font-family: 'Crimson Pro', serif;
-  background: var(--verde-mesa);
+  font-family: 'Lato', sans-serif;
+  background: var(--azul-noche);
   color: var(--texto);
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow-x: hidden;
 }
+
+/* Fondo con textura celeste-blanco */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(116,172,223,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(116,172,223,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,22,40,0.95) 0%, var(--azul-noche) 100%);
+  pointer-events: none;
+}
+
+/* Franja diagonal decorativa Argentina */
+body::after {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 10;
+  background: linear-gradient(90deg, var(--celeste) 33%, var(--blanco) 33%, var(--blanco) 67%, var(--celeste) 67%);
+  box-shadow: 0 0 20px rgba(116,172,223,0.5);
+}
+
+/* ===== LOBBY ===== */
 #pantalla-lobby {
-  width: 100%; max-width: 420px;
+  position: relative; z-index: 1;
+  width: 100%; max-width: 440px;
   padding: 24px 20px;
   display: flex; flex-direction: column;
   align-items: center; gap: 20px;
 }
-.titulo-lobby {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 2.8rem; color: var(--dorado);
-  text-shadow: 0 0 30px rgba(201,168,76,0.4), 2px 2px 0 #000;
+
+.logo-zona {
   text-align: center;
+  padding: 8px 0 4px;
 }
-.subtitulo { color: var(--dorado-claro); font-size: 1.1rem; font-style: italic; opacity: 0.8; }
+
+.titulo-lobby {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.2rem; font-weight: 900;
+  color: var(--blanco);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px rgba(116,172,223,0.6), 0 2px 0 var(--celeste-dark);
+  position: relative;
+}
+
+.titulo-lobby span {
+  color: var(--celeste);
+  text-shadow: 0 0 30px rgba(116,172,223,0.9);
+}
+
+.subtitulo {
+  font-size: 0.8rem; letter-spacing: 4px;
+  color: var(--dorado); text-transform: uppercase;
+  margin-top: 6px; opacity: 0.9;
+}
+
+.escudo {
+  font-size: 2rem; margin-top: 4px;
+  filter: drop-shadow(0 0 8px rgba(212,160,23,0.6));
+}
+
 .card {
-  background: linear-gradient(145deg, #1e4a1e, #142e14);
-  border: 1px solid var(--dorado); border-radius: 12px;
-  padding: 24px; width: 100%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,168,76,0.2);
+  background: linear-gradient(160deg, rgba(16,32,64,0.95), rgba(10,22,40,0.98));
+  border: 1px solid rgba(116,172,223,0.3);
+  border-radius: 16px; padding: 24px; width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(116,172,223,0.2),
+              0 0 0 1px rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
 }
+
 .card h2 {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 1rem; color: var(--dorado);
-  margin-bottom: 16px; text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; color: var(--celeste);
+  margin-bottom: 18px; text-align: center;
+  letter-spacing: 2px; text-transform: uppercase;
 }
-.campo { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.campo label { font-size: 0.85rem; color: var(--dorado-claro); letter-spacing: 1px; text-transform: uppercase; }
+
+.campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.campo label {
+  font-size: 0.7rem; color: var(--dorado);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+}
 .campo input, .campo select {
   background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(201,168,76,0.4); border-radius: 8px;
-  padding: 12px 14px; color: var(--crema);
-  font-family: 'Crimson Pro', serif; font-size: 1.1rem;
-  width: 100%; outline: none; transition: border-color 0.2s;
+  border: 1px solid rgba(116,172,223,0.3); border-radius: 8px;
+  padding: 11px 14px; color: var(--blanco);
+  font-family: 'Lato', sans-serif; font-size: 1rem;
+  width: 100%; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.campo input:focus, .campo select:focus { border-color: var(--dorado); }
-.campo select option { background: #1a3a1a; }
+.campo input:focus, .campo select:focus {
+  border-color: var(--celeste);
+  box-shadow: 0 0 0 3px rgba(116,172,223,0.15);
+}
+.campo select option { background: #102040; }
+
+/* Selector de modalidad */
+.modalidad-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px;
+}
+.mod-btn {
+  padding: 10px 6px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(116,172,223,0.3);
+  background: rgba(0,0,0,0.3);
+  color: var(--texto-suave); font-family: 'Lato', sans-serif;
+  font-size: 0.85rem; text-align: center; transition: all 0.2s;
+}
+.mod-btn.activo {
+  border-color: var(--celeste); color: var(--blanco);
+  background: rgba(116,172,223,0.15);
+  box-shadow: 0 0 12px rgba(116,172,223,0.2);
+}
+.mod-btn .mod-icono { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+
+/* Toggle flor */
+.toggle-flor {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 8px;
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(116,172,223,0.2);
+  margin-bottom: 14px; cursor: pointer;
+}
+.toggle-switch {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: rgba(116,172,223,0.2); position: relative;
+  transition: background 0.3s; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--celeste); }
+.toggle-switch::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: white; top: 3px; left: 3px;
+  transition: left 0.3s;
+}
+.toggle-switch.on::after { left: 21px; }
+.toggle-label { font-size: 0.85rem; color: var(--texto-suave); }
+.toggle-label strong { color: var(--texto); }
+
 .btn {
-  width: 100%; padding: 14px; border-radius: 10px; border: none;
-  font-family: 'Cinzel Decorative', cursive; font-size: 1rem;
-  cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+  width: 100%; padding: 13px; border-radius: 10px; border: none;
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 2px; text-transform: uppercase;
 }
 .btn-primario {
-  background: linear-gradient(135deg, var(--dorado), #a07830);
-  color: #1a0a00; box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+  background: linear-gradient(135deg, var(--celeste) 0%, var(--celeste-dark) 100%);
+  color: var(--azul-noche);
+  box-shadow: 0 4px 20px rgba(116,172,223,0.3), 0 0 0 1px rgba(255,255,255,0.1);
 }
-.btn-primario:hover { filter: brightness(1.1); }
+.btn-primario:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primario:active { transform: translateY(0); }
 .btn-secundario {
-  background: transparent; color: var(--dorado);
-  border: 1px solid var(--dorado); margin-top: 8px;
+  background: transparent; color: var(--celeste);
+  border: 1px solid rgba(116,172,223,0.4); margin-top: 8px;
+  font-size: 0.85rem;
 }
+.btn-secundario:hover { background: rgba(116,172,223,0.08); }
+
 .separador {
   display: flex; align-items: center; gap: 12px;
-  color: rgba(201,168,76,0.5); font-size: 0.85rem; margin: 8px 0;
+  color: var(--texto-suave); font-size: 0.8rem; margin: 8px 0;
 }
 .separador::before, .separador::after {
-  content: ''; flex: 1; height: 1px; background: rgba(201,168,76,0.3);
+  content: ''; flex: 1; height: 1px; background: rgba(116,172,223,0.2);
 }
+
 .sala-codigo {
-  font-family: 'Cinzel Decorative', cursive; font-size: 2rem;
-  color: var(--dorado-claro); text-align: center; letter-spacing: 6px;
-  padding: 12px; background: rgba(0,0,0,0.3);
-  border-radius: 8px; border: 1px dashed rgba(201,168,76,0.4);
-  margin: 8px 0;
+  font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900;
+  color: var(--dorado-claro); text-align: center; letter-spacing: 8px;
+  padding: 14px; background: rgba(0,0,0,0.3); border-radius: 10px;
+  border: 1px dashed rgba(212,160,23,0.4); margin: 8px 0;
+  text-shadow: 0 0 20px rgba(212,160,23,0.4);
 }
+
 .jugadores-lista { display: flex; flex-direction: column; gap: 8px; }
 .jugador-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: rgba(0,0,0,0.3);
+  padding: 9px 12px; background: rgba(0,0,0,0.2);
   border-radius: 8px; border-left: 3px solid transparent;
 }
-.jugador-item.equipo-0 { border-left-color: #4a9eff; }
-.jugador-item.equipo-1 { border-left-color: #ff6b6b; }
-.jugador-item.vacio { opacity: 0.4; font-style: italic; }
+.jugador-item.equipo-0 { border-left-color: var(--celeste); }
+.jugador-item.equipo-1 { border-left-color: var(--dorado); }
+.jugador-item.vacio { opacity: 0.35; font-style: italic; }
 .jugador-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(201,168,76,0.2);
+  font-weight: 700; font-size: 0.9rem;
+  background: rgba(116,172,223,0.15);
 }
 .badge-equipo {
-  margin-left: auto; font-size: 0.75rem;
-  padding: 2px 8px; border-radius: 20px;
-  font-family: 'Cinzel Decorative', cursive;
+  margin-left: auto; font-size: 0.7rem;
+  padding: 2px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 1px;
 }
-.badge-equipo.e0 { background: rgba(74,158,255,0.2); color: #4a9eff; }
-.badge-equipo.e1 { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+.badge-equipo.e0 { background: rgba(116,172,223,0.15); color: var(--celeste); }
+.badge-equipo.e1 { background: rgba(212,160,23,0.15); color: var(--dorado-claro); }
 .msg-info {
   text-align: center; font-style: italic;
-  color: var(--dorado-claro); opacity: 0.8;
-  font-size: 0.95rem; padding: 8px;
+  color: var(--texto-suave); font-size: 0.9rem; padding: 6px;
 }
 
-/* JUEGO */
+/* ===== JUEGO ===== */
 #pantalla-juego {
-  width: 100%; max-width: 480px;
+  position: relative; z-index: 1;
+  width: 100%; max-width: 500px;
   min-height: 100dvh; display: flex;
-  flex-direction: column; padding-bottom: 16px;
+  flex-direction: column;
 }
+
+/* Header */
 .game-header {
-  background: linear-gradient(180deg, #0a1a0a, transparent);
-  padding: 10px 16px 6px;
+  padding: 12px 16px 8px;
   display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(116,172,223,0.15);
+  background: rgba(10,22,40,0.8);
 }
-.game-title { font-family: 'Cinzel Decorative', cursive; font-size: 1.1rem; color: var(--dorado); }
-.puntaje-header { display: flex; gap: 12px; align-items: center; }
-.equipo-score { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.equipo-nombre { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
-.equipo-puntos { font-size: 1.4rem; font-weight: 600; color: var(--dorado-claro); }
-.score-sep { color: var(--dorado); opacity: 0.5; font-size: 1.2rem; }
+.game-logo {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 900;
+  color: var(--blanco); letter-spacing: 3px;
+}
+.game-logo span { color: var(--celeste); }
+
+/* Marcador palitos */
+.marcadores {
+  display: flex; gap: 16px; align-items: center;
+}
+.marcador-equipo {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.marcador-nombre {
+  font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.marcador-palitos {
+  display: flex; gap: 6px; align-items: center;
+}
+.mitad-label {
+  font-size: 0.55rem; color: var(--texto-suave); letter-spacing: 1px;
+  text-transform: uppercase; text-align: center; line-height: 1.2;
+}
+
+/* SVG palito cuadrado */
+.palito-cuadro {
+  width: 28px; height: 28px;
+}
+
+.score-sep { color: rgba(116,172,223,0.4); font-size: 1rem; }
+
+/* Turno banner */
 .turno-banner {
-  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
-  border-top: 1px solid rgba(201,168,76,0.3);
-  border-bottom: 1px solid rgba(201,168,76,0.3);
-  text-align: center; padding: 6px; font-size: 0.85rem;
-  color: var(--dorado-claro); font-style: italic; min-height: 32px;
+  text-align: center; padding: 7px 16px;
+  font-size: 0.85rem; color: var(--texto-suave);
+  background: rgba(116,172,223,0.05);
+  border-bottom: 1px solid rgba(116,172,223,0.1);
+  min-height: 34px; display: flex; align-items: center; justify-content: center;
 }
-.turno-yo { color: #4aff8c; font-weight: 600; }
+.turno-yo { color: var(--dorado-claro); font-weight: 700; }
+
+/* Canto banner */
 .canto-banner {
-  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.1), transparent);
-  border: 1px solid rgba(74,158,255,0.3);
-  border-radius: 8px; margin: 6px 16px;
-  padding: 10px 16px; text-align: center;
-  font-size: 1rem; color: #7bc8ff;
+  margin: 6px 12px; padding: 9px 14px;
+  border-radius: 8px; text-align: center;
+  font-size: 0.9rem; border: 1px solid;
+  animation: pulseBorder 2s ease infinite;
 }
+.canto-truco { border-color: rgba(116,172,223,0.5); color: var(--celeste); background: rgba(116,172,223,0.08); }
+.canto-envido { border-color: rgba(212,160,23,0.5); color: var(--dorado-claro); background: rgba(212,160,23,0.08); }
+.canto-flor { border-color: rgba(100,220,100,0.5); color: #80ff80; background: rgba(100,220,100,0.08); }
+@keyframes pulseBorder {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Mesa zona */
 .mesa-zona {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 8px 16px; gap: 12px;
+  padding: 8px 12px; gap: 6px; overflow-y: auto;
 }
-.ronda-indicador {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 0.75rem; color: var(--dorado);
-  letter-spacing: 2px; opacity: 0.8;
+
+.mano-zona {
+  background: rgba(0,0,0,0.2); border-radius: 10px;
+  border: 1px solid rgba(116,172,223,0.12); padding: 8px 10px;
 }
-.mesa-cartas {
-  display: flex; gap: 16px; justify-content: center;
-  flex-wrap: wrap; min-height: 120px; align-items: center;
+.mano-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
 }
-.jugada-en-mesa {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 6px;
+.mano-titulo {
+  font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--texto-suave); font-weight: 700;
+}
+.mano-resultado {
+  margin-left: auto; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+}
+.mano-resultado.azul { color: var(--celeste); }
+.mano-resultado.dorado { color: var(--dorado-claro); }
+.mano-resultado.empate { color: var(--texto-suave); }
+
+.cartas-fila {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start;
+}
+
+.jugada-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   animation: aparecer 0.3s ease;
 }
 @keyframes aparecer {
-  from { opacity: 0; transform: translateY(-8px) scale(0.9); }
+  from { opacity: 0; transform: translateY(-6px) scale(0.9); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.jugada-nombre { font-size: 0.7rem; opacity: 0.7; text-align: center; max-width: 70px; }
-.resultado-ronda {
-  text-align: center; font-family: 'Cinzel Decorative', cursive;
-  font-size: 0.75rem; color: var(--dorado); padding: 4px;
-  min-height: 24px; letter-spacing: 1px;
+.jugada-nombre {
+  font-size: 0.62rem; color: var(--texto-suave);
+  text-align: center; max-width: 56px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
+.mesa-vacia {
+  opacity: 0.3; font-style: italic; font-size: 0.8rem;
+  padding: 6px 0; color: var(--texto-suave);
+}
+
+/* Acciones */
 .acciones-zona {
-  padding: 6px 16px; display: flex;
-  gap: 8px; justify-content: center; flex-wrap: wrap;
+  padding: 6px 12px 4px; display: flex; gap: 6px;
+  justify-content: center; flex-wrap: wrap;
+  min-height: 44px;
 }
 .btn-accion {
-  padding: 8px 16px; border-radius: 20px; border: 1px solid;
-  font-family: 'Crimson Pro', serif; font-size: 0.95rem;
-  cursor: pointer; transition: all 0.2s; background: transparent;
+  padding: 7px 14px; border-radius: 20px; border: 1px solid;
+  font-family: 'Lato', sans-serif; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; background: transparent;
+  letter-spacing: 0.5px;
 }
-.btn-truco { border-color: #ff6b6b; color: #ff6b6b; }
-.btn-truco:hover { background: rgba(255,107,107,0.15); }
-.btn-envido { border-color: #4a9eff; color: #4a9eff; }
-.btn-envido:hover { background: rgba(74,158,255,0.15); }
-.btn-quiero { border-color: #4aff8c; color: #4aff8c; }
-.btn-quiero:hover { background: rgba(74,255,140,0.15); }
-.btn-noquiero { border-color: #ff9999; color: #ff9999; }
-.btn-noquiero:hover { background: rgba(255,107,107,0.15); }
-.btn-mazo { border-color: rgba(201,168,76,0.5); color: var(--dorado-claro); }
-.btn-mazo:hover { background: rgba(201,168,76,0.1); }
+.btn-truco { border-color: var(--celeste); color: var(--celeste); }
+.btn-truco:hover { background: rgba(116,172,223,0.12); }
+.btn-envido { border-color: var(--dorado); color: var(--dorado-claro); }
+.btn-envido:hover { background: rgba(212,160,23,0.12); }
+.btn-flor { border-color: #80ff80; color: #80ff80; }
+.btn-flor:hover { background: rgba(100,220,100,0.12); }
+.btn-quiero { border-color: #5cf07a; color: #5cf07a; }
+.btn-quiero:hover { background: rgba(92,240,122,0.12); }
+.btn-noquiero { border-color: #f07a5c; color: #f07a5c; }
+.btn-noquiero:hover { background: rgba(240,122,92,0.12); }
+.btn-mazo { border-color: rgba(255,255,255,0.2); color: var(--texto-suave); }
+.btn-mazo:hover { background: rgba(255,255,255,0.05); }
+
+/* Mis cartas */
 .mis-cartas-zona {
-  padding: 8px 16px; display: flex;
-  flex-direction: column; align-items: center; gap: 8px;
+  padding: 8px 12px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.2);
+  border-top: 1px solid rgba(116,172,223,0.12);
 }
 .mi-nombre-label {
-  font-size: 0.75rem; color: var(--dorado-claro);
-  opacity: 0.7; letter-spacing: 1px; text-transform: uppercase;
+  font-size: 0.65rem; color: var(--dorado); letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
 }
-.mis-cartas { display: flex; gap: 12px; justify-content: center; }
+.mis-cartas { display: flex; gap: 10px; justify-content: center; }
 
-/* CARTAS */
+/* ===== CARTAS ===== */
 .carta {
-  width: 70px; height: 105px; border-radius: 8px;
-  background: var(--crema); border: 2px solid #d4b896;
+  width: 62px; height: 95px; border-radius: 7px;
+  background: linear-gradient(160deg, #fefaf0, #f5e8cc);
+  border: 1.5px solid #d4b896;
   display: flex; flex-direction: column;
   align-items: center; justify-content: space-between;
-  padding: 6px 4px; cursor: pointer; position: relative;
-  box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+  padding: 5px 3px; cursor: pointer; position: relative;
+  box-shadow: 2px 3px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
   transition: transform 0.2s, box-shadow 0.2s;
-  user-select: none; -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .carta:hover:not(.jugada) {
-  transform: translateY(-8px);
-  box-shadow: 3px 10px 20px rgba(0,0,0,0.6);
+  transform: translateY(-10px) rotate(-1deg);
+  box-shadow: 3px 12px 24px rgba(0,0,0,0.6);
 }
-.carta.jugada { opacity: 0.35; cursor: default; transform: none !important; }
-.carta-num {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 1.1rem; color: #1a0a00; line-height: 1;
-}
-.carta-num.rojo { color: #8b1a1a; }
-.carta-palo { font-size: 1.8rem; line-height: 1; }
-.carta-num-bot {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 1.1rem; color: #1a0a00; line-height: 1;
-  transform: rotate(180deg);
-}
-.carta-num-bot.rojo { color: #8b1a1a; }
-
-.carta-mesa {
-  width: 55px; height: 82px; border-radius: 6px;
-  background: var(--crema); border: 2px solid #d4b896;
+.carta.jugada { opacity: 0.35; cursor: default; transform: none !important; filter: grayscale(0.3); }
+.carta-mesa-mini {
+  width: 44px; height: 66px; border-radius: 5px;
+  background: linear-gradient(160deg, #fefaf0, #f5e8cc);
+  border: 1.5px solid #d4b896;
   display: flex; flex-direction: column;
   align-items: center; justify-content: space-between;
-  padding: 4px 3px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  padding: 3px 2px;
+  box-shadow: 1px 2px 6px rgba(0,0,0,0.4);
 }
-.carta-mesa .carta-num { font-size: 0.85rem; }
-.carta-mesa .carta-palo { font-size: 1.3rem; }
-.carta-mesa .carta-num-bot { font-size: 0.85rem; }
+.carta-num {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: 1rem; color: #1a0800; line-height: 1; align-self: flex-start; padding-left: 2px;
+}
+.carta-num.rojo { color: #8b1010; }
+.carta-num-bot {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: 1rem; color: #1a0800; line-height: 1;
+  align-self: flex-end; padding-right: 2px; transform: rotate(180deg);
+}
+.carta-num-bot.rojo { color: #8b1010; }
+.carta-palo {
+  display: flex; align-items: center; justify-content: center;
+  flex: 1; width: 100%;
+}
+.carta-palo svg { width: 28px; height: 28px; }
+.carta-mesa-mini .carta-palo svg { width: 20px; height: 20px; }
+.carta-mesa-mini .carta-num { font-size: 0.75rem; }
+.carta-mesa-mini .carta-num-bot { font-size: 0.75rem; }
 
-/* NOTIF */
+/* ===== NOTIF ===== */
 .overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7); z-index: 99;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99;
+  backdrop-filter: blur(4px);
 }
 .notif {
   position: fixed; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, #1e4a1e, #0f2a0f);
-  border: 2px solid var(--dorado); border-radius: 16px;
-  padding: 24px 32px; text-align: center;
-  z-index: 100; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  animation: popIn 0.3s ease; max-width: 88vw; width: 320px;
+  background: linear-gradient(160deg, #102040, #0a1628);
+  border: 1px solid rgba(116,172,223,0.4); border-radius: 18px;
+  padding: 28px 32px; text-align: center; z-index: 100;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(116,172,223,0.1);
+  animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  max-width: 88vw; width: 320px;
 }
 @keyframes popIn {
   from { opacity: 0; transform: translate(-50%,-50%) scale(0.85); }
   to { opacity: 1; transform: translate(-50%,-50%) scale(1); }
 }
 .notif h2 {
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 1.3rem; color: var(--dorado); margin-bottom: 10px;
+  font-family: 'Playfair Display', serif; font-size: 1.4rem;
+  color: var(--celeste); margin-bottom: 10px;
 }
-.notif p { color: var(--texto); font-size: 1.05rem; margin-bottom: 16px; line-height: 1.4; }
-.notif .btn { width: auto; padding: 10px 24px; font-size: 0.85rem; }
+.notif p { color: var(--texto); font-size: 1rem; margin-bottom: 18px; line-height: 1.5; }
+.notif .btn { width: auto; padding: 10px 28px; font-size: 0.8rem; display: inline-block; }
+
 .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<!-- LOBBY -->
+<!-- ===== LOBBY ===== -->
 <div id="pantalla-lobby">
-  <div class="titulo-lobby">TRUCO</div>
-  <div class="subtitulo">2 vs 2 · Argentina</div>
+  <div class="logo-zona">
+    <div class="titulo-lobby">TRU<span>CO</span></div>
+    <div class="subtitulo">🇦🇷 &nbsp; Argentino &nbsp; 🇦🇷</div>
+  </div>
 
+  <!-- Inicio -->
   <div id="vista-inicio" class="card">
-    <h2>Nueva Partida</h2>
+    <h2>Nueva Sala</h2>
     <div class="campo">
       <label>Tu nombre</label>
       <input type="text" id="input-nombre" placeholder="Ej: Claudio" maxlength="16" autocomplete="off">
     </div>
-    <div class="campo">
-      <label>Tu equipo</label>
-      <select id="select-equipo">
-        <option value="0">🔵 Equipo Azul</option>
-        <option value="1">🔴 Equipo Rojo</option>
-      </select>
+    <div class="campo"><label>Modalidad</label></div>
+    <div class="modalidad-grid" id="mod-grid">
+      <div class="mod-btn activo" data-mod="1" onclick="selModali(1)">
+        <span class="mod-icono">🤺</span>1 vs 1
+      </div>
+      <div class="mod-btn" data-mod="2" onclick="selModali(2)">
+        <span class="mod-icono">🤝</span>2 vs 2
+      </div>
+      <div class="mod-btn" data-mod="3" onclick="selModali(3)">
+        <span class="mod-icono">⚔️</span>3 vs 3
+      </div>
+    </div>
+    <div class="campo"><label>Tu equipo</label></div>
+    <div class="modalidad-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+      <div class="mod-btn activo" data-eq="0" onclick="selEquipo(0)">
+        <span class="mod-icono">🔵</span>Azul
+      </div>
+      <div class="mod-btn" data-eq="1" onclick="selEquipo(1)">
+        <span class="mod-icono">⭐</span>Dorado
+      </div>
+    </div>
+    <div class="toggle-flor" onclick="toggleFlor()">
+      <div class="toggle-switch" id="toggle-flor-sw"></div>
+      <div class="toggle-label"><strong>Jugar con Flor</strong><br><span style="font-size:0.75rem;opacity:0.7">3 cartas del mismo palo</span></div>
     </div>
     <button class="btn btn-primario" onclick="crearSala()">Crear sala</button>
     <div class="separador">o</div>
     <button class="btn btn-secundario" onclick="mostrarUnirse()">Unirse a sala existente</button>
   </div>
 
+  <!-- Unirse -->
   <div id="vista-unirse" class="card hidden">
-    <h2>Unirse a sala</h2>
+    <h2>Unirse a Sala</h2>
     <div class="campo">
       <label>Tu nombre</label>
       <input type="text" id="input-nombre2" placeholder="Ej: Marcelo" maxlength="16" autocomplete="off">
     </div>
-    <div class="campo">
-      <label>Tu equipo</label>
-      <select id="select-equipo2">
-        <option value="0">🔵 Equipo Azul</option>
-        <option value="1">🔴 Equipo Rojo</option>
-      </select>
+    <div class="campo"><label>Tu equipo</label></div>
+    <div class="modalidad-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+      <div class="mod-btn activo" data-eq2="0" onclick="selEquipo2(0)">
+        <span class="mod-icono">🔵</span>Azul
+      </div>
+      <div class="mod-btn" data-eq2="1" onclick="selEquipo2(1)">
+        <span class="mod-icono">⭐</span>Dorado
+      </div>
     </div>
     <div class="campo">
       <label>Código de sala</label>
-      <input type="text" id="input-codigo" placeholder="ABCD"
-        maxlength="6" autocomplete="off"
-        style="text-transform:uppercase;letter-spacing:4px;font-size:1.4rem;text-align:center">
+      <input type="text" id="input-codigo" placeholder="ABCD" maxlength="6" autocomplete="off"
+        style="text-transform:uppercase;letter-spacing:6px;font-size:1.5rem;text-align:center">
     </div>
     <button class="btn btn-primario" onclick="unirseASala()">Unirse</button>
     <button class="btn btn-secundario" onclick="mostrarInicio()">← Volver</button>
   </div>
 
+  <!-- Sala espera -->
   <div id="vista-sala" class="card hidden">
-    <h2>Sala de espera</h2>
-    <p class="msg-info">Compartí este código:</p>
+    <h2>Sala de Espera</h2>
+    <p class="msg-info">Compartí este código con tus amigos:</p>
     <div class="sala-codigo" id="codigo-display"></div>
-    <div style="margin-top:16px">
-      <p class="msg-info" style="margin-bottom:10px">Jugadores (necesitás 4):</p>
-      <div class="jugadores-lista" id="lista-jugadores"></div>
-    </div>
-    <div class="msg-info" id="msg-espera" style="margin-top:12px">Esperando jugadores...</div>
+    <div id="info-sala" class="msg-info" style="font-size:0.8rem;color:var(--dorado);margin-bottom:10px"></div>
+    <div class="jugadores-lista" id="lista-jugadores"></div>
+    <div class="msg-info" id="msg-espera" style="margin-top:10px"></div>
     <button class="btn btn-primario hidden" id="btn-empezar" onclick="empezarPartida()">¡Empezar!</button>
   </div>
 </div>
 
-<!-- JUEGO -->
+<!-- ===== JUEGO ===== -->
 <div id="pantalla-juego" class="hidden">
   <div class="game-header">
-    <div class="game-title">TRUCO</div>
-    <div class="puntaje-header">
-      <div class="equipo-score">
-        <div class="equipo-nombre">🔵 Azul</div>
-        <div class="equipo-puntos" id="pts-azul">0</div>
+    <div class="game-logo">TRU<span>CO</span></div>
+    <div class="marcadores">
+      <div class="marcador-equipo">
+        <div class="marcador-nombre" id="nom-eq0">🔵 Azul</div>
+        <div class="marcador-palitos" id="palitos-0"></div>
+        <div class="mitad-label" id="mitad-label-0">MALAS</div>
       </div>
       <div class="score-sep">—</div>
-      <div class="equipo-score">
-        <div class="equipo-nombre">🔴 Rojo</div>
-        <div class="equipo-puntos" id="pts-rojo">0</div>
+      <div class="marcador-equipo">
+        <div class="marcador-nombre" id="nom-eq1">⭐ Dorado</div>
+        <div class="marcador-palitos" id="palitos-1"></div>
+        <div class="mitad-label" id="mitad-label-1">MALAS</div>
       </div>
     </div>
   </div>
@@ -361,12 +567,8 @@ body {
   <div class="turno-banner" id="turno-banner">Cargando...</div>
   <div class="canto-banner hidden" id="canto-banner"></div>
 
-  <div class="mesa-zona">
-    <div class="ronda-indicador" id="ronda-indicador">PRIMERA MANO</div>
-    <div class="mesa-cartas" id="mesa-cartas">
-      <span style="opacity:0.3;font-style:italic;font-size:0.9rem">Nadie jugó todavía</span>
-    </div>
-    <div class="resultado-ronda" id="resultado-ronda"></div>
+  <div class="mesa-zona" id="mesa-zona">
+    <!-- manos dinámicas -->
   </div>
 
   <div class="acciones-zona" id="acciones-zona"></div>
@@ -386,8 +588,8 @@ body {
 </div>
 
 <script>
-// ===== FIREBASE CONFIG =====
-const firebaseConfig = {
+// ===== FIREBASE =====
+firebase.initializeApp({
   apiKey: "AIzaSyDyXAjXgSSZIQlauiZWTZEz9od9QydrNog",
   authDomain: "truco-amigos.firebaseapp.com",
   databaseURL: "https://truco-amigos-default-rtdb.firebaseio.com",
@@ -395,22 +597,55 @@ const firebaseConfig = {
   storageBucket: "truco-amigos.firebasestorage.app",
   messagingSenderId: "971033179334",
   appId: "1:971033179334:web:7b3e4198fc90059f56d3c7"
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.database();
 
-// ===== ESTADO =====
-let miId = null, miNombre = '', miEquipo = 0, salaId = null;
-let soyCreador = false, juegoSuscrito = false;
-let estadoLocal = null;
+// ===== ESTADO LOCAL =====
+let miId=null, miNombre='', miEquipo=0, salaId=null;
+let soyCreador=false, juegoSuscrito=false, estadoLocal=null;
+let modalidadSel=1, equipoSel=0, equipoSel2=0, conFlor=false;
 
 // ===== HELPERS =====
-function generarId() { return Math.random().toString(36).substr(2,8); }
-function generarCodigo() { return Math.random().toString(36).substr(2,4).toUpperCase(); }
+function genId() { return Math.random().toString(36).substr(2,8); }
+function genCodigo() { return Math.random().toString(36).substr(2,4).toUpperCase(); }
+
+// ===== PALOS SVG ESTILO ESPAÑOL CLÁSICO =====
+function svgPalo(palo) {
+  const svgs = {
+    espada: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="4" x2="20" y2="36" stroke="#1a3a6a" stroke-width="2.5" stroke-linecap="round"/>
+      <polygon points="20,4 16,16 24,16" fill="#1a3a6a"/>
+      <line x1="12" y1="26" x2="28" y2="26" stroke="#1a3a6a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="10" y1="30" x2="30" y2="30" stroke="#8b6914" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="20" cy="33" r="3" fill="#8b6914"/>
+    </svg>`,
+    basto: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="17" y="6" width="6" height="28" rx="3" fill="#4a2c0a"/>
+      <ellipse cx="14" cy="12" rx="5" ry="7" fill="#5a3a10"/>
+      <ellipse cx="26" cy="12" rx="5" ry="7" fill="#5a3a10"/>
+      <ellipse cx="20" cy="8" rx="5" ry="6" fill="#6b4a18"/>
+      <ellipse cx="14" cy="12" rx="4" ry="5" fill="#7a5a20" opacity="0.7"/>
+      <ellipse cx="26" cy="12" rx="4" ry="5" fill="#7a5a20" opacity="0.7"/>
+      <ellipse cx="20" cy="8" rx="4" ry="4" fill="#8b6a28" opacity="0.7"/>
+    </svg>`,
+    copa: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 8 Q20 20 20 22 Q20 20 26 8 Z" fill="#8b1a1a"/>
+      <path d="M12 8 Q10 14 13 18 Q16 22 20 22 Q24 22 27 18 Q30 14 28 8 Z" fill="#a02020" stroke="#8b1a1a" stroke-width="1"/>
+      <line x1="20" y1="22" x2="20" y2="32" stroke="#8b1a1a" stroke-width="2.5"/>
+      <ellipse cx="20" cy="32" rx="6" ry="2.5" fill="#8b1a1a"/>
+      <ellipse cx="20" cy="12" rx="3" ry="4" fill="#c84040" opacity="0.4"/>
+    </svg>`,
+    oro: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="13" fill="#D4A017" stroke="#a07800" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="9" fill="#F0C040" stroke="#D4A017" stroke-width="1"/>
+      <circle cx="20" cy="20" r="5" fill="#D4A017" stroke="#a07800" stroke-width="0.5"/>
+      <circle cx="20" cy="20" r="2" fill="#F8D860"/>
+    </svg>`
+  };
+  return svgs[palo] || '';
+}
 
 const PALOS = ['espada','basto','oro','copa'];
-const EMOJI = { espada:'⚔️', basto:'🌿', oro:'🪙', copa:'🏆' };
 const JERARQUIA = {
   '1-espada':1,'1-basto':2,'7-espada':3,'7-oro':4,
   '3-espada':5,'3-basto':5,'3-oro':5,'3-copa':5,
@@ -424,529 +659,707 @@ const JERARQUIA = {
   '5-espada':13,'5-basto':13,'5-oro':13,'5-copa':13,
   '4-espada':14,'4-basto':14,'4-oro':14,'4-copa':14,
 };
+function poderCarta(c) { return JERARQUIA[c.num+'-'+c.palo]||15; }
+function esRojo(p) { return p==='copa'; }
+function valorEnvido(n) { return n>=10?0:n; }
 
-function poderCarta(c) { return JERARQUIA[c.num+'-'+c.palo] || 15; }
-function esRojo(p) { return p==='oro'||p==='copa'; }
-
-function valorEnvido(n) { return n>=10 ? 0 : n; }
 function calcularEnvido(cartas) {
-  let mejor = 0;
-  PALOS.forEach(p => {
-    const del = cartas.filter(c=>c.palo===p);
-    if (del.length>=2) {
-      const vals = del.map(c=>valorEnvido(c.num)).sort((a,b)=>b-a);
-      mejor = Math.max(mejor, 20+vals[0]+vals[1]);
-    } else if (del.length===1) {
-      mejor = Math.max(mejor, valorEnvido(del[0].num));
+  let mejor=0;
+  PALOS.forEach(p=>{
+    const del=cartas.filter(c=>c.palo===p);
+    if(del.length>=2){
+      const vals=del.map(c=>valorEnvido(c.num)).sort((a,b)=>b-a);
+      mejor=Math.max(mejor,20+vals[0]+vals[1]);
+    } else if(del.length===1){
+      mejor=Math.max(mejor,valorEnvido(del[0].num));
     }
   });
   return mejor;
 }
 
+function tieneFlor(cartas) {
+  return PALOS.some(p=>cartas.filter(c=>c.palo===p).length===3);
+}
+
+function calcularFlor(cartas) {
+  for(const p of PALOS){
+    if(cartas.filter(c=>c.palo===p).length===3){
+      return 20+cartas.reduce((s,c)=>s+valorEnvido(c.num),0);
+    }
+  }
+  return 0;
+}
+
 function generarMazo() {
-  const mazo = [];
-  PALOS.forEach(p => [1,2,3,4,5,6,7,10,11,12].forEach(n => mazo.push({num:n,palo:p})));
-  for (let i=mazo.length-1;i>0;i--) {
+  const mazo=[];
+  PALOS.forEach(p=>[1,2,3,4,5,6,7,10,11,12].forEach(n=>mazo.push({num:n,palo:p})));
+  for(let i=mazo.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [mazo[i],mazo[j]]=[mazo[j],mazo[i]];
   }
   return mazo;
 }
 
+// ===== MARCADOR PALITOS =====
+// Sistema: 5 puntos por cuadrado (izq, arriba, der, abajo, cruz)
+// 3 cuadrados = 15 puntos (malas), luego otros 3 (buenas)
+function renderPalitos(pts, contenedor, labelEl) {
+  contenedor.innerHTML='';
+  const enBuenas = pts>=15;
+  const ptsActivos = enBuenas ? pts-15 : pts;
+  if(labelEl) labelEl.textContent = enBuenas ? 'BUENAS' : 'MALAS';
+
+  // 3 cuadrados
+  for(let c=0;c<3;c++){
+    const base = c*5;
+    const svg = dibujarCuadro(ptsActivos, base);
+    contenedor.appendChild(svg);
+  }
+}
+
+function dibujarCuadro(ptsActivos, base) {
+  // base: cuántos puntos ya pasaron antes de este cuadro
+  // puntos 1-5 dentro del cuadro
+  const p1 = ptsActivos > base;     // lado izquierdo
+  const p2 = ptsActivos > base+1;   // lado arriba
+  const p3 = ptsActivos > base+2;   // lado derecho
+  const p4 = ptsActivos > base+3;   // lado abajo
+  const p5 = ptsActivos > base+4;   // cruz
+
+  const c = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  c.setAttribute('viewBox','0 0 28 28');
+  c.setAttribute('class','palito-cuadro');
+
+  const COL_ON = '#74ACDF';
+  const COL_OFF = 'rgba(116,172,223,0.12)';
+  const SW = 2.5;
+
+  // Lado izquierdo
+  line(c, 4,4, 4,24, p1?COL_ON:COL_OFF, SW);
+  // Lado arriba
+  line(c, 4,4, 24,4, p2?COL_ON:COL_OFF, SW);
+  // Lado derecho
+  line(c, 24,4, 24,24, p3?COL_ON:COL_OFF, SW);
+  // Lado abajo
+  line(c, 4,24, 24,24, p4?COL_ON:COL_OFF, SW);
+  // Cruz diagonal
+  line(c, 4,4, 24,24, p5?COL_ON:COL_OFF, SW);
+
+  return c;
+}
+
+function line(svg, x1,y1,x2,y2, col, sw) {
+  const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+  l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+  l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+  l.setAttribute('stroke',col); l.setAttribute('stroke-width',sw);
+  l.setAttribute('stroke-linecap','round');
+  svg.appendChild(l);
+}
+
 // ===== NOTIF =====
-function mostrarNotif(titulo, msg, btnTxt, fn) {
-  document.getElementById('notif-titulo').textContent = titulo;
-  document.getElementById('notif-msg').textContent = msg;
-  const b = document.getElementById('notif-btn');
-  b.textContent = btnTxt || 'OK';
-  b.onclick = fn || cerrarNotif;
+function mostrarNotif(titulo,msg,btnTxt,fn){
+  document.getElementById('notif-titulo').textContent=titulo;
+  document.getElementById('notif-msg').textContent=msg;
+  const b=document.getElementById('notif-btn');
+  b.textContent=btnTxt||'OK';
+  b.onclick=fn||cerrarNotif;
   document.getElementById('notif').classList.remove('hidden');
   document.getElementById('overlay').classList.remove('hidden');
 }
-function cerrarNotif() {
+function cerrarNotif(){
   document.getElementById('notif').classList.add('hidden');
   document.getElementById('overlay').classList.add('hidden');
 }
 
-// ===== LOBBY =====
-function mostrarUnirse() {
+// ===== LOBBY UI =====
+function selModali(m){
+  modalidadSel=m;
+  document.querySelectorAll('#mod-grid .mod-btn').forEach(b=>b.classList.toggle('activo',+b.dataset.mod===m));
+}
+function selEquipo(e){
+  equipoSel=e;
+  document.querySelectorAll('[data-eq]').forEach(b=>b.classList.toggle('activo',+b.dataset.eq===e));
+}
+function selEquipo2(e){
+  equipoSel2=e;
+  document.querySelectorAll('[data-eq2]').forEach(b=>b.classList.toggle('activo',+b.dataset.eq2===e));
+}
+function toggleFlor(){
+  conFlor=!conFlor;
+  document.getElementById('toggle-flor-sw').classList.toggle('on',conFlor);
+}
+function mostrarUnirse(){
   document.getElementById('vista-inicio').classList.add('hidden');
   document.getElementById('vista-unirse').classList.remove('hidden');
 }
-function mostrarInicio() {
+function mostrarInicio(){
   document.getElementById('vista-unirse').classList.add('hidden');
   document.getElementById('vista-inicio').classList.remove('hidden');
 }
 
-function crearSala() {
-  const nombre = document.getElementById('input-nombre').value.trim();
-  const equipo = parseInt(document.getElementById('select-equipo').value);
-  if (!nombre) { mostrarNotif('⚠️','Ingresá tu nombre'); return; }
-
-  miId = generarId();
-  miNombre = nombre;
-  miEquipo = equipo;
-  salaId = generarCodigo();
-  soyCreador = true;
-
+function crearSala(){
+  const nombre=document.getElementById('input-nombre').value.trim();
+  if(!nombre){mostrarNotif('⚠️','Ingresá tu nombre');return;}
+  miId=genId(); miNombre=nombre; miEquipo=equipoSel;
+  salaId=genCodigo(); soyCreador=true;
   db.ref('salas/'+salaId).set({
-    creador: miId,
-    estado: 'esperando',
-    jugadores: { [miId]: {id:miId, nombre, equipo} },
-    juego: null
-  }).then(() => mostrarVistaSala())
-    .catch(e => mostrarNotif('❌','Error al crear sala: '+e.message));
+    creador:miId, estado:'esperando', modalidad:modalidadSel, conFlor,
+    jugadores:{[miId]:{id:miId,nombre,equipo:equipoSel}}, juego:null
+  }).then(()=>mostrarVistaSala()).catch(e=>mostrarNotif('❌','Error: '+e.message));
 }
 
-function unirseASala() {
-  const nombre = document.getElementById('input-nombre2').value.trim();
-  const equipo = parseInt(document.getElementById('select-equipo2').value);
-  const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
-  if (!nombre) { mostrarNotif('⚠️','Ingresá tu nombre'); return; }
-  if (!codigo) { mostrarNotif('⚠️','Ingresá el código de sala'); return; }
-
-  db.ref('salas/'+codigo).once('value').then(snap => {
-    if (!snap.exists()) { mostrarNotif('❌','Sala no encontrada'); return; }
-    const sala = snap.val();
-    const jugadores = sala.jugadores || {};
-    if (Object.keys(jugadores).length >= 4) { mostrarNotif('❌','La sala está llena'); return; }
-
-    miId = generarId();
-    miNombre = nombre;
-    miEquipo = equipo;
-    salaId = codigo;
-
-    db.ref('salas/'+salaId+'/jugadores/'+miId).set({id:miId, nombre, equipo})
-      .then(() => mostrarVistaSala())
-      .catch(e => mostrarNotif('❌','Error al unirse: '+e.message));
-  }).catch(e => mostrarNotif('❌','Error: '+e.message));
+function unirseASala(){
+  const nombre=document.getElementById('input-nombre2').value.trim();
+  const codigo=document.getElementById('input-codigo').value.trim().toUpperCase();
+  if(!nombre){mostrarNotif('⚠️','Ingresá tu nombre');return;}
+  if(!codigo){mostrarNotif('⚠️','Ingresá el código');return;}
+  db.ref('salas/'+codigo).once('value').then(snap=>{
+    if(!snap.exists()){mostrarNotif('❌','Sala no encontrada');return;}
+    const sala=snap.val();
+    const jug=sala.jugadores||{};
+    const max=sala.modalidad*2;
+    if(Object.keys(jug).length>=max){mostrarNotif('❌','La sala está llena');return;}
+    miId=genId(); miNombre=nombre; miEquipo=equipoSel2; salaId=codigo;
+    db.ref('salas/'+salaId+'/jugadores/'+miId).set({id:miId,nombre,equipo:equipoSel2})
+      .then(()=>mostrarVistaSala()).catch(e=>mostrarNotif('❌','Error: '+e.message));
+  }).catch(e=>mostrarNotif('❌','Error: '+e.message));
 }
 
-function mostrarVistaSala() {
+function mostrarVistaSala(){
   document.getElementById('vista-inicio').classList.add('hidden');
   document.getElementById('vista-unirse').classList.add('hidden');
   document.getElementById('vista-sala').classList.remove('hidden');
-  document.getElementById('codigo-display').textContent = salaId;
+  document.getElementById('codigo-display').textContent=salaId;
   escucharSala();
 }
 
-function escucharSala() {
-  db.ref('salas/'+salaId).on('value', snap => {
-    if (!snap.exists()) return;
-    const sala = snap.val();
+function escucharSala(){
+  db.ref('salas/'+salaId).on('value',snap=>{
+    if(!snap.exists())return;
+    const sala=snap.val();
+    if(sala.estado==='jugando'&&!juegoSuscrito){juegoSuscrito=true;escucharJuego();return;}
+    if(sala.estado==='jugando')return;
 
-    if (sala.estado === 'jugando' && !juegoSuscrito) {
-      juegoSuscrito = true;
-      escucharJuego();
-      return;
-    }
+    const mod=sala.modalidad||2;
+    const cf=sala.conFlor?'Con Flor':'Sin Flor';
+    document.getElementById('info-sala').textContent=mod+'v'+mod+' · '+cf;
 
-    if (sala.estado === 'jugando') return;
-
-    // Mostrar lista de jugadores
-    const jugadores = sala.jugadores || {};
-    const lista = document.getElementById('lista-jugadores');
-    lista.innerHTML = '';
-    const porEquipo = [[],[]];
-    Object.values(jugadores).forEach(j => porEquipo[j.equipo] && porEquipo[j.equipo].push(j));
-
-    for (let eq=0;eq<2;eq++) {
-      for (let i=0;i<2;i++) {
-        const j = porEquipo[eq][i];
-        const div = document.createElement('div');
-        div.className = 'jugador-item equipo-'+eq+(j?'':' vacio');
-        if (j) {
-          div.innerHTML = '<div class="jugador-avatar">'+j.nombre[0].toUpperCase()+'</div>'
+    const jugadores=sala.jugadores||{};
+    const lista=document.getElementById('lista-jugadores');
+    lista.innerHTML='';
+    const max=mod*2;
+    const porEq=[[],[]];
+    Object.values(jugadores).forEach(j=>porEq[j.equipo]&&porEq[j.equipo].push(j));
+    for(let eq=0;eq<2;eq++){
+      for(let i=0;i<mod;i++){
+        const j=porEq[eq][i];
+        const div=document.createElement('div');
+        div.className='jugador-item equipo-'+eq+(j?'':' vacio');
+        if(j){
+          div.innerHTML='<div class="jugador-avatar">'+j.nombre[0].toUpperCase()+'</div>'
             +'<span>'+j.nombre+(j.id===miId?' (vos)':'')+'</span>'
-            +'<span class="badge-equipo e'+eq+'">'+(eq===0?'Azul':'Rojo')+'</span>';
+            +'<span class="badge-equipo e'+eq+'">'+(eq===0?'Azul':'Dorado')+'</span>';
         } else {
-          div.innerHTML = '<div class="jugador-avatar">?</div><span>Esperando...</span>'
-            +'<span class="badge-equipo e'+eq+'">'+(eq===0?'Azul':'Rojo')+'</span>';
+          div.innerHTML='<div class="jugador-avatar">?</div><span>Esperando...</span>'
+            +'<span class="badge-equipo e'+eq+'">'+(eq===0?'Azul':'Dorado')+'</span>';
         }
         lista.appendChild(div);
       }
     }
-
-    const total = Object.keys(jugadores).length;
-    const msg = document.getElementById('msg-espera');
-    const btn = document.getElementById('btn-empezar');
-    if (total < 4) {
-      msg.textContent = 'Esperando jugadores... ('+total+'/4)';
+    const total=Object.keys(jugadores).length;
+    const msg=document.getElementById('msg-espera');
+    const btn=document.getElementById('btn-empezar');
+    if(total<max){
+      msg.textContent='Esperando jugadores... ('+total+'/'+max+')';
       btn.classList.add('hidden');
     } else {
-      msg.textContent = soyCreador ? 'Todo listo. ¡Empezá la partida!' : 'Todo listo. Esperando que el creador empiece.';
-      if (soyCreador) btn.classList.remove('hidden');
+      msg.textContent=soyCreador?'Todo listo. ¡Empezá la partida!':'Esperando que el creador empiece.';
+      if(soyCreador)btn.classList.remove('hidden');
     }
   });
 }
 
-function empezarPartida() {
-  db.ref('salas/'+salaId+'/jugadores').once('value').then(snap => {
-    const jugadores = Object.values(snap.val());
-    iniciarNuevaRonda(jugadores, [0,0]);
+function empezarPartida(){
+  db.ref('salas/'+salaId).once('value').then(snap=>{
+    const sala=snap.val();
+    const jugadores=Object.values(sala.jugadores);
+    iniciarNuevaRonda(jugadores,[0,0],sala.modalidad,sala.conFlor,0);
   });
 }
 
-// ===== JUEGO =====
-function iniciarNuevaRonda(jugadores, puntos) {
-  const mazo = generarMazo();
-  const porEquipo = [[],[]];
-  jugadores.forEach(j => porEquipo[j.equipo] && porEquipo[j.equipo].push(j));
+// ===== LÓGICA JUEGO =====
+function iniciarNuevaRonda(jugadores, puntos, modalidad, conFlor, manoOffset){
+  const mazo=generarMazo();
+  const mod=modalidad||2;
 
-  // Orden alternado entre equipos
-  const orden = [];
-  for (let i=0;i<2;i++) {
-    if (porEquipo[0][i]) orden.push(porEquipo[0][i].id);
-    if (porEquipo[1][i]) orden.push(porEquipo[1][i].id);
+  // Ordenar jugadores por equipo alternado
+  const porEq=[[],[]];
+  jugadores.forEach(j=>porEq[j.equipo]&&porEq[j.equipo].push(j));
+  const orden=[];
+  for(let i=0;i<mod;i++){
+    if(porEq[0][i])orden.push(porEq[0][i].id);
+    if(porEq[1][i])orden.push(porEq[1][i].id);
+  }
+  // Rotar según manoOffset
+  const ordenRotado=[];
+  for(let i=0;i<orden.length;i++) ordenRotado.push(orden[(i+manoOffset)%orden.length]);
+
+  const manos={};
+  jugadores.forEach((j,idx)=>{manos[j.id]=[mazo[idx*3],mazo[idx*3+1],mazo[idx*3+2]];});
+
+  const jugObj={};
+  jugadores.forEach(j=>{jugObj[j.id]=j;});
+
+  // Detectar flores si aplica
+  const flores={};
+  if(conFlor){
+    jugadores.forEach(j=>{flores[j.id]=tieneFlor(manos[j.id]);});
   }
 
-  const manos = {};
-  jugadores.forEach((j,idx) => {
-    manos[j.id] = [mazo[idx*3], mazo[idx*3+1], mazo[idx*3+2]];
-  });
+  // Determinar quiénes pueden cantar envido según modalidad
+  // Los últimos 2 jugadores del orden (índices mod*2-2 y mod*2-1)
+  const puedenEnvido=[];
+  if(mod===1){
+    // 1v1: cualquiera
+    ordenRotado.forEach(id=>puedenEnvido.push(id));
+  } else {
+    // 2v2: los últimos 2; 3v3: los últimos 2
+    puedenEnvido.push(ordenRotado[ordenRotado.length-2]);
+    puedenEnvido.push(ordenRotado[ordenRotado.length-1]);
+  }
 
-  const jugadoresObj = {};
-  jugadores.forEach(j => { jugadoresObj[j.id] = j; });
-
-  const estado = {
-    jugadores: jugadoresObj, orden, puntos, manos,
-    cartasEnMesa: [],
-    manoActual: 0,
-    resultadoManos: [],
-    turnoIdx: 0,
-    truco: { estado:'sin_cantar', cantadoPor:null, nivel:0 },
-    envido: { estado:'sin_cantar', cantadoPor:null, nivel:0 },
-    faseEnvido: 'disponible',
-    finMano: false,
-    finPartida: false,
-    ganadorPartida: null,
+  const estado={
+    jugadores:jugObj, orden:ordenRotado, puntos, manos, flores,
+    modalidad:mod, conFlor,
+    cartasEnMesa:[],
+    manoActual:0, resultadoManos:[],
+    turnoIdx:0, manoOffset,
+    truco:{estado:'sin_cantar',cantadoPor:null,nivel:0},
+    envido:{estado:'sin_cantar',cantadoPor:null,nivel:0},
+    florCantada:{estado:'sin_cantar',cantadoPor:null,nivel:0},
+    faseEnvido:'disponible',
+    puedenEnvido,
+    finMano:false, finPartida:false, ganadorPartida:null,
+    procesandoFinMano:false,
   };
 
-  db.ref('salas/'+salaId).update({ estado:'jugando', juego:estado });
+  db.ref('salas/'+salaId).update({estado:'jugando',juego:estado});
 }
 
-function escucharJuego() {
-  db.ref('salas/'+salaId+'/juego').on('value', snap => {
-    if (!snap.exists()) return;
-    estadoLocal = snap.val();
+function escucharJuego(){
+  db.ref('salas/'+salaId+'/juego').on('value',snap=>{
+    if(!snap.exists())return;
+    estadoLocal=snap.val();
     renderJuego();
   });
 }
 
-function renderJuego() {
-  const e = estadoLocal;
-  if (!e) return;
-
+// ===== RENDER =====
+function renderJuego(){
+  const e=estadoLocal;
+  if(!e)return;
   document.getElementById('pantalla-lobby').classList.add('hidden');
   document.getElementById('pantalla-juego').classList.remove('hidden');
 
-  if (e.finPartida) {
-    const nombre = e.ganadorPartida===0 ? '🔵 Equipo Azul' : '🔴 Equipo Rojo';
-    mostrarNotif('🏆 ¡Ganaron!', nombre+' ganó la partida', 'Nueva partida', () => {
+  if(e.finPartida){
+    const nom=e.ganadorPartida===0?'🔵 Azul':'⭐ Dorado';
+    mostrarNotif('🏆 ¡Campeones!',nom+' ganó la partida','Nueva partida',()=>{
       cerrarNotif();
-      iniciarNuevaRonda(Object.values(e.jugadores), [0,0]);
+      db.ref('salas/'+salaId+'/juego').once('value').then(snap=>{
+        const j=snap.val();
+        iniciarNuevaRonda(Object.values(j.jugadores),[0,0],j.modalidad,j.conFlor,0);
+      });
     });
     return;
   }
 
-  document.getElementById('pts-azul').textContent = e.puntos[0];
-  document.getElementById('pts-rojo').textContent = e.puntos[1];
+  // Marcadores
+  renderPalitos(e.puntos[0],document.getElementById('palitos-0'),document.getElementById('mitad-label-0'));
+  renderPalitos(e.puntos[1],document.getElementById('palitos-1'),document.getElementById('mitad-label-1'));
 
-  const turnoJug = e.jugadores[e.orden[e.turnoIdx]];
-  const esMiTurno = e.orden[e.turnoIdx] === miId;
-  const tb = document.getElementById('turno-banner');
-  tb.innerHTML = esMiTurno
-    ? '<span class="turno-yo">Tu turno, '+miNombre+'</span>'
-    : 'Turno de '+(turnoJug ? turnoJug.nombre : '...');
+  // Nombres equipos
+  document.getElementById('nom-eq0').textContent='🔵 Azul';
+  document.getElementById('nom-eq1').textContent='⭐ Dorado';
 
-  const rondas = ['PRIMERA MANO','SEGUNDA MANO','TERCERA MANO'];
-  document.getElementById('ronda-indicador').textContent = rondas[e.manoActual]||'';
+  // Turno
+  const turnoJug=e.jugadores[e.orden[e.turnoIdx]];
+  const esMiTurno=e.orden[e.turnoIdx]===miId;
+  const tb=document.getElementById('turno-banner');
+  tb.innerHTML=esMiTurno
+    ?'<span class="turno-yo">✨ Tu turno, '+miNombre+'</span>'
+    :'Turno de '+(turnoJug?turnoJug.nombre:'...');
 
   renderCantoBanner(e);
   renderMesa(e);
-  renderResultados(e);
   renderMisCartas(e);
-  renderAcciones(e, esMiTurno);
+  renderAcciones(e,esMiTurno);
 
-  if (e.finMano) setTimeout(() => procesarFinMano(e), 1500);
+  document.getElementById('mi-nombre-label').textContent=miNombre;
+
+  if(e.finMano&&!e.procesandoFinMano) setTimeout(()=>procesarFinMano(e),1800);
 }
 
-function renderCantoBanner(e) {
-  const el = document.getElementById('canto-banner');
-  const t = e.truco, ev = e.envido;
-  const trucoEspera = ['cantado','retrucando','valecuatrando'].includes(t.estado);
-  const envidoEspera = ev.estado === 'cantado';
+function renderCantoBanner(e){
+  const el=document.getElementById('canto-banner');
+  const t=e.truco,ev=e.envido,fl=e.florCantada;
+  const trucoEspera=['cantado','retrucando','valecuatrando'].includes(t.estado);
+  const envidoEspera=ev.estado==='cantado';
+  const florEspera=['cantada','contrafloreando'].includes(fl&&fl.estado);
 
-  if (trucoEspera) {
-    const niveles = ['','Truco','Re-truco','Vale cuatro'];
-    const quien = e.jugadores[t.cantadoPor];
-    el.innerHTML = '🃏 <strong>'+(quien?quien.nombre:'?')+'</strong> cantó <strong>'+niveles[t.nivel]+'</strong>';
+  if(florEspera){
+    const quien=e.jugadores[fl.cantadoPor];
+    el.innerHTML='🌸 <strong>'+(quien?quien.nombre:'?')+'</strong> cantó <strong>'+(fl.nivel===2?'Contraflor':'Flor')+'</strong>';
+    el.className='canto-banner canto-flor';
     el.classList.remove('hidden');
-  } else if (envidoEspera) {
-    const niveles = ['','Envido','Envido Envido','Real envido','Falta envido'];
-    const quien = e.jugadores[ev.cantadoPor];
-    el.innerHTML = '🎲 <strong>'+(quien?quien.nombre:'?')+'</strong> cantó <strong>'+niveles[ev.nivel]+'</strong>';
+  } else if(trucoEspera){
+    const niv=['','Truco','Re-truco','Vale cuatro'];
+    const quien=e.jugadores[t.cantadoPor];
+    el.innerHTML='🃏 <strong>'+(quien?quien.nombre:'?')+'</strong> cantó <strong>'+niv[t.nivel]+'</strong>';
+    el.className='canto-banner canto-truco';
+    el.classList.remove('hidden');
+  } else if(envidoEspera){
+    const niv=['','Envido','Envido Envido','Real envido','Falta envido'];
+    const quien=e.jugadores[ev.cantadoPor];
+    el.innerHTML='🎲 <strong>'+(quien?quien.nombre:'?')+'</strong> cantó <strong>'+niv[ev.nivel]+'</strong>';
+    el.className='canto-banner canto-envido';
     el.classList.remove('hidden');
   } else {
     el.classList.add('hidden');
   }
 }
 
-function renderMesa(e) {
-  const el = document.getElementById('mesa-cartas');
-  el.innerHTML = '';
-  const cartas = (e.cartasEnMesa||[]).filter(c=>c.mano===e.manoActual);
-  if (!cartas.length) {
-    el.innerHTML = '<span style="opacity:0.3;font-style:italic;font-size:0.9rem">Nadie jugó todavía</span>';
-    return;
+function renderMesa(e){
+  const zona=document.getElementById('mesa-zona');
+  zona.innerHTML='';
+  const manos=['PRIMERA MANO','SEGUNDA MANO','TERCERA MANO'];
+
+  for(let m=0;m<=Math.max(e.manoActual, e.resultadoManos?e.resultadoManos.length-1:0);m++){
+    const div=document.createElement('div');
+    div.className='mano-zona';
+
+    const res=e.resultadoManos&&e.resultadoManos[m]!==undefined?e.resultadoManos[m]:null;
+    const resTxt=res===null?'':(res==='empate'?'EMPATE':res===0?'🔵 Azul':'⭐ Dorado');
+    const resCls=res===null?'':(res==='empate'?'empate':res===0?'azul':'dorado');
+
+    div.innerHTML='<div class="mano-header">'
+      +'<span class="mano-titulo">'+manos[m]+'</span>'
+      +(res!==null?'<span class="mano-resultado '+resCls+'">'+resTxt+'</span>':'')
+      +'</div>';
+
+    const fila=document.createElement('div');
+    fila.className='cartas-fila';
+
+    const cartasMano=(e.cartasEnMesa||[]).filter(c=>c.mano===m);
+    if(!cartasMano.length){
+      fila.innerHTML='<span class="mesa-vacia">Nadie jugó todavía</span>';
+    } else {
+      cartasMano.forEach(jug=>{
+        const jname=(e.jugadores[jug.jugadorId]||{}).nombre||'?';
+        const item=document.createElement('div');
+        item.className='jugada-item';
+        item.innerHTML=cartaMiniHTML(jug.carta)+'<div class="jugada-nombre">'+jname+'</div>';
+        fila.appendChild(item);
+      });
+    }
+    div.appendChild(fila);
+    zona.appendChild(div);
   }
-  cartas.forEach(jug => {
-    const j = e.jugadores[jug.jugadorId];
-    const div = document.createElement('div');
-    div.className = 'jugada-en-mesa';
-    div.innerHTML = cartaMesaHTML(jug.carta)+'<div class="jugada-nombre">'+(j?j.nombre:'')+'</div>';
-    el.appendChild(div);
-  });
 }
 
-function cartaMesaHTML(c) {
-  const r = esRojo(c.palo) ? ' rojo' : '';
-  return '<div class="carta-mesa">'
+function cartaMiniHTML(c){
+  const r=esRojo(c.palo)?' rojo':'';
+  return '<div class="carta-mesa-mini">'
     +'<div class="carta-num'+r+'">'+c.num+'</div>'
-    +'<div class="carta-palo">'+EMOJI[c.palo]+'</div>'
+    +'<div class="carta-palo">'+svgPalo(c.palo)+'</div>'
     +'<div class="carta-num-bot'+r+'">'+c.num+'</div>'
     +'</div>';
 }
 
-function renderResultados(e) {
-  const el = document.getElementById('resultado-ronda');
-  if (!e.resultadoManos || !e.resultadoManos.length) { el.textContent=''; return; }
-  el.textContent = e.resultadoManos.map((r,i) => {
-    const l = ['1ª','2ª','3ª'][i];
-    if (r==='empate') return l+': Empate';
-    return l+': '+(r===0?'🔵 Azul':'🔴 Rojo');
-  }).join('  ·  ');
-}
+function renderMisCartas(e){
+  const el=document.getElementById('mis-cartas');
+  el.innerHTML='';
+  const misCartas=e.manos[miId]||[];
+  const jugadas=new Set((e.cartasEnMesa||[]).filter(c=>c.jugadorId===miId).map(c=>c.cartaIdx));
 
-function renderMisCartas(e) {
-  const el = document.getElementById('mis-cartas');
-  el.innerHTML = '';
-  document.getElementById('mi-nombre-label').textContent = miNombre;
-  const misCartas = e.manos[miId] || [];
-  const jugadas = new Set((e.cartasEnMesa||[]).filter(c=>c.jugadorId===miId).map(c=>c.cartaIdx));
-
-  misCartas.forEach((carta, idx) => {
-    const div = document.createElement('div');
-    const yajugada = jugadas.has(idx);
-    div.className = 'carta'+(yajugada?' jugada':'');
-    const r = esRojo(carta.palo) ? ' rojo' : '';
-    div.innerHTML = '<div class="carta-num'+r+'">'+carta.num+'</div>'
-      +'<div class="carta-palo">'+EMOJI[carta.palo]+'</div>'
+  misCartas.forEach((carta,idx)=>{
+    const yajugada=jugadas.has(idx);
+    const div=document.createElement('div');
+    div.className='carta'+(yajugada?' jugada':'');
+    const r=esRojo(carta.palo)?' rojo':'';
+    div.innerHTML='<div class="carta-num'+r+'">'+carta.num+'</div>'
+      +'<div class="carta-palo">'+svgPalo(carta.palo)+'</div>'
       +'<div class="carta-num-bot'+r+'">'+carta.num+'</div>';
-    if (!yajugada) div.addEventListener('click', () => jugarCarta(idx));
+    if(!yajugada) div.addEventListener('click',()=>jugarCarta(idx));
     el.appendChild(div);
   });
 }
 
-function renderAcciones(e, esMiTurno) {
-  const el = document.getElementById('acciones-zona');
-  el.innerHTML = '';
-  const t = e.truco, ev = e.envido;
-  const miEq = e.jugadores[miId] ? e.jugadores[miId].equipo : -1;
+function renderAcciones(e,esMiTurno){
+  const el=document.getElementById('acciones-zona');
+  el.innerHTML='';
+  const t=e.truco,ev=e.envido,fl=e.florCantada||{estado:'sin_cantar'};
+  const miEq=(e.jugadores[miId]||{}).equipo;
 
-  const trucoEspera = ['cantado','retrucando','valecuatrando'].includes(t.estado);
-  const envidoEspera = ev.estado === 'cantado';
-  const cantadorEq = trucoEspera ? (e.jugadores[t.cantadoPor]||{}).equipo
-    : envidoEspera ? (e.jugadores[ev.cantadoPor]||{}).equipo : -1;
-  const debeResponder = (trucoEspera||envidoEspera) && cantadorEq !== miEq;
+  const trucoEspera=['cantado','retrucando','valecuatrando'].includes(t.estado);
+  const envidoEspera=ev.estado==='cantado';
+  const florEspera=['cantada','contrafloreando'].includes(fl.estado);
 
-  if (debeResponder) {
-    el.appendChild(mkBtn('✅ Quiero','btn-quiero',()=>responderCanto('quiero',e)));
-    el.appendChild(mkBtn('❌ No quiero','btn-noquiero',()=>responderCanto('noquiero',e)));
-    if (trucoEspera && t.nivel < 3) {
-      const subs = ['','','Re-truco','Vale cuatro'];
-      el.appendChild(mkBtn(subs[t.nivel+1],'btn-truco',()=>cantarTruco(t.nivel+1)));
-    }
-    if (envidoEspera) {
-      if (ev.nivel < 3) el.appendChild(mkBtn('Real envido','btn-envido',()=>cantarEnvido(3)));
-      el.appendChild(mkBtn('Falta envido','btn-envido',()=>cantarEnvido(4)));
+  // Primero: responder a flor
+  if(florEspera){
+    const cantadorEq=(e.jugadores[fl.cantadoPor]||{}).equipo;
+    if(cantadorEq!==miEq){
+      el.appendChild(mkBtn('Con flor me achico','btn-noquiero',()=>responderFlor('achico',e)));
+      if(e.manos[miId]&&tieneFlor(e.manos[miId])){
+        el.appendChild(mkBtn('Flor','btn-flor',()=>responderFlor('flor',e)));
+        if(fl.nivel<2) el.appendChild(mkBtn('Contraflor','btn-flor',()=>responderFlor('contraflor',e)));
+      }
     }
     return;
   }
 
-  if (!esMiTurno) return;
+  // Responder a truco o envido
+  const cantadorEq=trucoEspera?(e.jugadores[t.cantadoPor]||{}).equipo
+    :envidoEspera?(e.jugadores[ev.cantadoPor]||{}).equipo:-1;
+  const debeResponder=(trucoEspera||envidoEspera)&&cantadorEq!==miEq;
 
-  if (t.estado==='sin_cantar') el.appendChild(mkBtn('Truco','btn-truco',()=>cantarTruco(1)));
-  else if (t.estado==='aceptado' && t.nivel<3) {
+  if(debeResponder){
+    el.appendChild(mkBtn('✅ Quiero','btn-quiero',()=>responderCanto('quiero',e)));
+    el.appendChild(mkBtn('❌ No quiero','btn-noquiero',()=>responderCanto('noquiero',e)));
+    if(trucoEspera&&t.nivel<3){
+      const subs=['','','Re-truco','Vale cuatro'];
+      el.appendChild(mkBtn(subs[t.nivel+1],'btn-truco',()=>cantarTruco(t.nivel+1)));
+    }
+    if(envidoEspera){
+      if(ev.nivel<3) el.appendChild(mkBtn('Real envido','btn-envido',()=>cantarEnvido(3,e)));
+      el.appendChild(mkBtn('Falta envido','btn-envido',()=>cantarEnvido(4,e)));
+    }
+    return;
+  }
+
+  if(!esMiTurno)return;
+
+  // Cantar flor (si tengo flor y aún no la canté)
+  if(e.conFlor&&e.manos[miId]&&tieneFlor(e.manos[miId])&&fl.estado==='sin_cantar'&&e.faseEnvido!=='resuelto'){
+    el.appendChild(mkBtn('🌸 Flor','btn-flor',()=>cantarFlor(1)));
+  }
+
+  // Cantar truco
+  if(t.estado==='sin_cantar') el.appendChild(mkBtn('Truco','btn-truco',()=>cantarTruco(1)));
+  else if(t.estado==='aceptado'&&t.nivel<3&&t.cantadoPor!==miId){
     const subs=['','','Re-truco','Vale cuatro'];
     el.appendChild(mkBtn(subs[t.nivel+1],'btn-truco',()=>cantarTruco(t.nivel+1)));
   }
 
-  if (e.manoActual===0 && e.faseEnvido==='disponible') {
-    el.appendChild(mkBtn('Envido','btn-envido',()=>cantarEnvido(1)));
-    el.appendChild(mkBtn('Real envido','btn-envido',()=>cantarEnvido(3)));
-    el.appendChild(mkBtn('Falta envido','btn-envido',()=>cantarEnvido(4)));
+  // Cantar envido: solo primera mano, antes de aceptar truco, si habilitado
+  const trucoAceptado=t.estado==='aceptado';
+  const envidoDisp=e.manoActual===0&&e.faseEnvido==='disponible'&&!trucoAceptado
+    &&fl.estado==='sin_cantar'
+    &&(e.puedenEnvido||[]).includes(miId);
+
+  if(envidoDisp){
+    el.appendChild(mkBtn('Envido','btn-envido',()=>cantarEnvido(1,e)));
+    el.appendChild(mkBtn('Real envido','btn-envido',()=>cantarEnvido(3,e)));
+    el.appendChild(mkBtn('Falta envido','btn-envido',()=>cantarEnvido(4,e)));
   }
 
   el.appendChild(mkBtn('Ir al mazo','btn-mazo',()=>irAlMazo(e)));
 }
 
-function mkBtn(txt, cls, fn) {
-  const b = document.createElement('button');
-  b.className = 'btn-accion '+cls;
-  b.textContent = txt;
-  b.addEventListener('click', fn);
-  return b;
+function mkBtn(txt,cls,fn){
+  const b=document.createElement('button');
+  b.className='btn-accion '+cls; b.textContent=txt;
+  b.addEventListener('click',fn); return b;
 }
 
 // ===== ACCIONES =====
-function jugarCarta(idx) {
-  const e = estadoLocal;
-  if (!e || e.orden[e.turnoIdx] !== miId) return;
-  if (['cantado','retrucando','valecuatrando'].includes(e.truco.estado)) return;
-  if (e.envido.estado === 'cantado') return;
+function jugarCarta(idx){
+  const e=estadoLocal;
+  if(!e||e.orden[e.turnoIdx]!==miId)return;
+  if(['cantado','retrucando','valecuatrando'].includes(e.truco.estado))return;
+  if(e.envido.estado==='cantado')return;
+  if((e.florCantada||{estado:'sin_cantar'}).estado!=='sin_cantar'&&(e.florCantada||{estado:'sin_cantar'}).estado!=='resuelta')return;
 
-  const jugadas = new Set((e.cartasEnMesa||[]).filter(c=>c.jugadorId===miId).map(c=>c.cartaIdx));
-  if (jugadas.has(idx)) return;
+  const jugadas=new Set((e.cartasEnMesa||[]).filter(c=>c.jugadorId===miId).map(c=>c.cartaIdx));
+  if(jugadas.has(idx))return;
 
-  const carta = e.manos[miId][idx];
-  const nuevasCartas = [...(e.cartasEnMesa||[]), {jugadorId:miId, carta, cartaIdx:idx, mano:e.manoActual}];
-  const nuevoTurnoIdx = (e.turnoIdx+1) % e.orden.length;
-  const jugadasEstaMano = nuevasCartas.filter(c=>c.mano===e.manoActual);
-  const finMano = jugadasEstaMano.length === e.orden.length;
+  const carta=e.manos[miId][idx];
+  const nuevas=[...(e.cartasEnMesa||[]),{jugadorId:miId,carta,cartaIdx:idx,mano:e.manoActual}];
+  const nuevoTurnoIdx=(e.turnoIdx+1)%e.orden.length;
+  const jugadasMano=nuevas.filter(c=>c.mano===e.manoActual);
+  const finMano=jugadasMano.length===e.orden.length;
 
-  db.ref('salas/'+salaId+'/juego').update({
-    cartasEnMesa: nuevasCartas,
-    turnoIdx: nuevoTurnoIdx,
-    finMano,
-    faseEnvido: e.manoActual===0 ? 'resuelto' : e.faseEnvido,
-  });
+  const upd={cartasEnMesa:nuevas,turnoIdx:nuevoTurnoIdx,finMano};
+  // Cerrar envido si primera mano y alguien jugó
+  if(e.manoActual===0&&e.faseEnvido==='disponible') upd.faseEnvido='resuelto';
+  db.ref('salas/'+salaId+'/juego').update(upd);
 }
 
-function cantarTruco(nivel) {
-  const estados = {1:'cantado',2:'retrucando',3:'valecuatrando'};
-  db.ref('salas/'+salaId+'/juego/truco').update({estado:estados[nivel]||'cantado', cantadoPor:miId, nivel});
+function cantarTruco(nivel){
+  const estados={1:'cantado',2:'retrucando',3:'valecuatrando'};
+  db.ref('salas/'+salaId+'/juego/truco').update({estado:estados[nivel]||'cantado',cantadoPor:miId,nivel});
+  // Cerrar envido
+  db.ref('salas/'+salaId+'/juego').update({faseEnvido:'resuelto'});
 }
 
-function cantarEnvido(nivel) {
-  db.ref('salas/'+salaId+'/juego/envido').update({estado:'cantado', cantadoPor:miId, nivel});
+function cantarEnvido(nivel,e){
+  db.ref('salas/'+salaId+'/juego/envido').update({estado:'cantado',cantadoPor:miId,nivel});
   db.ref('salas/'+salaId+'/juego').update({faseEnvido:'cantado'});
 }
 
-function responderCanto(resp, e) {
-  const t = e.truco, ev = e.envido;
-  const trucoEspera = ['cantado','retrucando','valecuatrando'].includes(t.estado);
+function cantarFlor(nivel){
+  db.ref('salas/'+salaId+'/juego/florCantada').update({estado:'cantada',cantadoPor:miId,nivel});
+  db.ref('salas/'+salaId+'/juego').update({faseEnvido:'resuelto'});
+}
 
-  if (trucoEspera) {
-    if (resp==='quiero') {
+function responderFlor(resp,e){
+  const fl=e.florCantada;
+  const cantadorEq=(e.jugadores[fl.cantadoPor]||{}).equipo;
+  const miEq=(e.jugadores[miId]||{}).equipo;
+  if(resp==='achico'){
+    // Gana el que cantó flor: 3 pts
+    sumarPuntos(cantadorEq,3,e,'flor_resuelta');
+  } else if(resp==='flor'){
+    // Ambos tienen flor: gana la de más valor
+    const flVal={};
+    Object.entries(e.manos).forEach(([jId,cartas])=>{
+      if(tieneFlor(cartas)) flVal[jId]=calcularFlor(cartas);
+    });
+    // Gana el equipo con flor de mayor valor
+    let mejorEq=cantadorEq, mejorVal=0;
+    Object.entries(flVal).forEach(([jId,v])=>{
+      if(v>mejorVal){mejorVal=v;mejorEq=(e.jugadores[jId]||{}).equipo;}
+    });
+    sumarPuntos(mejorEq,3,e,'flor_resuelta');
+  } else if(resp==='contraflor'){
+    db.ref('salas/'+salaId+'/juego/florCantada').update({estado:'contrafloreando',cantadoPor:miId,nivel:2});
+  }
+}
+
+function responderCanto(resp,e){
+  const t=e.truco,ev=e.envido;
+  const trucoEspera=['cantado','retrucando','valecuatrando'].includes(t.estado);
+  if(trucoEspera){
+    if(resp==='quiero'){
       db.ref('salas/'+salaId+'/juego/truco').update({estado:'aceptado'});
     } else {
-      const ganEq = (e.jugadores[t.cantadoPor]||{}).equipo || 0;
-      const pts = t.nivel>1 ? t.nivel-1 : 1;
-      sumarPuntos(ganEq, pts, e, 'truco_resuelto');
+      const ganEq=(e.jugadores[t.cantadoPor]||{}).equipo||0;
+      const pts=t.nivel>1?t.nivel-1:1;
+      sumarPuntos(ganEq,pts,e,'truco_resuelto');
     }
-  } else if (ev.estado==='cantado') {
-    if (resp==='quiero') {
+  } else if(ev.estado==='cantado'){
+    if(resp==='quiero'){
       resolverEnvido(e);
     } else {
-      const ganEq = (e.jugadores[ev.cantadoPor]||{}).equipo || 0;
-      const ptsMap = [0,1,2,3,3,0];
-      sumarPuntos(ganEq, ptsMap[ev.nivel]||1, e, 'envido_resuelto');
+      const ganEq=(e.jugadores[ev.cantadoPor]||{}).equipo||0;
+      const ptsMap={1:1,2:2,3:2,4:3};
+      sumarPuntos(ganEq,ptsMap[ev.nivel]||1,e,'envido_resuelto');
     }
   }
 }
 
-function resolverEnvido(e) {
-  const porEquipo = [[],[]];
-  Object.entries(e.manos).forEach(([jId, cartas]) => {
-    const eq = (e.jugadores[jId]||{}).equipo;
-    if (eq!==undefined) porEquipo[eq].push(calcularEnvido(cartas));
+function resolverEnvido(e){
+  const porEq=[[],[]];
+  Object.entries(e.manos).forEach(([jId,cartas])=>{
+    const eq=(e.jugadores[jId]||{}).equipo;
+    if(eq!==undefined)porEq[eq].push(calcularEnvido(cartas));
   });
-  const pe0 = Math.max(...porEquipo[0]);
-  const pe1 = Math.max(...porEquipo[1]);
-  const ganEq = pe0 >= pe1 ? 0 : 1;
-  const nivel = e.envido.nivel;
-  let pts = nivel<=1 ? 2 : nivel===2 ? 4 : nivel===3 ? 3 : Math.max(1, 30-e.puntos[ganEq]);
-  sumarPuntos(ganEq, pts, e, 'envido_resuelto');
+  const pe0=Math.max(...porEq[0]);
+  const pe1=Math.max(...porEq[1]);
+  // Empate: gana quien es mano (primer jugador del orden)
+  let ganEq=pe0>pe1?0:pe0<pe1?1:((e.jugadores[e.orden[0]]||{}).equipo||0);
+  const nivel=e.envido.nivel;
+  let pts=2;
+  if(nivel===1)pts=2;
+  else if(nivel===2)pts=4;
+  else if(nivel===3)pts=3;
+  else if(nivel===4)pts=Math.max(1,30-e.puntos[ganEq]); // falta envido
+  sumarPuntos(ganEq,pts,e,'envido_resuelto');
 }
 
-function irAlMazo(e) {
-  const miEq = (e.jugadores[miId]||{}).equipo;
-  const contrario = miEq===0 ? 1 : 0;
-  const pts = e.truco.estado==='aceptado' ? e.truco.nivel : 1;
-  sumarPuntos(contrario, pts, e, 'mazo');
+function irAlMazo(e){
+  const miEq=(e.jugadores[miId]||{}).equipo;
+  const contrario=miEq===0?1:0;
+  const pts=e.truco.estado==='aceptado'?e.truco.nivel:1;
+  sumarPuntos(contrario,pts,e,'mazo');
 }
 
-function sumarPuntos(eq, pts, e, motivo) {
-  const nuevos = [...e.puntos];
-  nuevos[eq] += pts;
-  const fin = nuevos[0]>=30 || nuevos[1]>=30;
-  const upd = { puntos:nuevos, finPartida:fin, ganadorPartida: fin?eq:null };
-  if (motivo==='envido_resuelto') {
-    upd.faseEnvido = 'resuelto';
-    upd['envido/estado'] = 'resuelto';
+function sumarPuntos(eq,pts,e,motivo){
+  const nuevos=[...e.puntos];
+  nuevos[eq]+=pts;
+  const fin=nuevos[0]>=30||nuevos[1]>=30;
+  const upd={puntos:nuevos,finPartida:fin,ganadorPartida:fin?eq:null};
+  if(motivo==='envido_resuelto'||motivo==='flor_resuelta'){
+    upd.faseEnvido='resuelto';
+    upd['envido/estado']='resuelto';
+    if(motivo==='flor_resuelta')upd['florCantada/estado']='resuelta';
   }
-  if (motivo==='truco_resuelto') upd['truco/estado'] = 'resuelto';
+  if(motivo==='truco_resuelto')upd['truco/estado']='resuelto';
   db.ref('salas/'+salaId+'/juego').update(upd);
 }
 
 // ===== FIN DE MANO =====
-function procesarFinMano(e) {
-  // Solo el jugador con turnoIdx===0 procesa para evitar doble escritura
-  if (e.orden[0] !== miId) return;
+function procesarFinMano(e){
+  // Solo el primer jugador del orden procesa para evitar escrituras dobles
+  if(e.orden[0]!==miId)return;
 
-  const jugadas = (e.cartasEnMesa||[]).filter(c=>c.mano===e.manoActual);
-  const ganador = resolverMano(jugadas, e.jugadores);
-  const nuevosRes = [...(e.resultadoManos||[]), ganador];
-  const nuevaMano = e.manoActual + 1;
-  const ganadorRonda = resolverRonda(nuevosRes);
+  // Marcar que se está procesando
+  db.ref('salas/'+salaId+'/juego').update({procesandoFinMano:true});
 
-  if (ganadorRonda !== null || nuevaMano >= 3) {
-    const eq = ganadorRonda !== null ? ganadorRonda : 0;
-    const ptsTruco = e.truco.estado==='aceptado' ? e.truco.nivel : 1;
-    const nuevos = [...e.puntos];
-    nuevos[eq] += ptsTruco;
-    const fin = nuevos[0]>=30 || nuevos[1]>=30;
+  const jugadas=(e.cartasEnMesa||[]).filter(c=>c.mano===e.manoActual);
+  const ganador=resolverMano(jugadas,e.jugadores);
+  const nuevosRes=[...(e.resultadoManos||[]),ganador];
+  const nuevaMano=e.manoActual+1;
+  const ganadorRonda=resolverRonda(nuevosRes);
 
-    if (fin) {
-      db.ref('salas/'+salaId+'/juego').update({
-        resultadoManos: nuevosRes, finPartida:true,
-        ganadorPartida:eq, puntos:nuevos, finMano:false
-      });
+  if(ganadorRonda!==null||nuevaMano>=3){
+    const eq=ganadorRonda!==null?ganadorRonda:0;
+    const ptsTruco=e.truco.estado==='aceptado'?e.truco.nivel:1;
+    const nuevos=[...e.puntos];
+    nuevos[eq]+=ptsTruco;
+    const fin=nuevos[0]>=30||nuevos[1]>=30;
+    if(fin){
+      db.ref('salas/'+salaId+'/juego').update({resultadoManos:nuevosRes,finPartida:true,ganadorPartida:eq,puntos:nuevos,finMano:false,procesandoFinMano:false});
     } else {
-      db.ref('salas/'+salaId+'/juego').update({
-        resultadoManos: nuevosRes, puntos:nuevos, finMano:false
-      });
-      setTimeout(() => iniciarNuevaRonda(Object.values(e.jugadores), nuevos), 2000);
+      // Rotar mano
+      const nuevoOffset=(e.manoOffset+1)%e.orden.length;
+      db.ref('salas/'+salaId+'/juego').update({resultadoManos:nuevosRes,puntos:nuevos,finMano:false,procesandoFinMano:false});
+      setTimeout(()=>iniciarNuevaRonda(Object.values(e.jugadores),nuevos,e.modalidad,e.conFlor,nuevoOffset),2500);
     }
   } else {
+    // Siguiente mano: empieza el ganador de la mano anterior
+    // Buscar turnoIdx del ganador de la mano
+    let nuevoTurnoIdx=0;
+    if(ganador!=='empate'){
+      // El primer jugador del equipo ganador empieza
+      const primerGanador=e.orden.find(id=>(e.jugadores[id]||{}).equipo===ganador);
+      if(primerGanador) nuevoTurnoIdx=e.orden.indexOf(primerGanador);
+    }
     db.ref('salas/'+salaId+'/juego').update({
-      manoActual: nuevaMano,
-      resultadoManos: nuevosRes,
-      turnoIdx: 0,
-      finMano: false,
+      manoActual:nuevaMano,resultadoManos:nuevosRes,
+      turnoIdx:nuevoTurnoIdx,finMano:false,procesandoFinMano:false
     });
   }
 }
 
-function resolverMano(jugadas, jugadores) {
-  let mejor = null, empate = false;
-  jugadas.forEach(j => {
-    const p = poderCarta(j.carta);
-    if (!mejor || p < poderCarta(mejor.carta)) { mejor=j; empate=false; }
-    else if (p === poderCarta(mejor.carta)) empate=true;
+function resolverMano(jugadas,jugadores){
+  let mejor=null,empate=false;
+  jugadas.forEach(j=>{
+    const p=poderCarta(j.carta);
+    if(!mejor||p<poderCarta(mejor.carta)){mejor=j;empate=false;}
+    else if(p===poderCarta(mejor.carta))empate=true;
   });
-  if (empate) return 'empate';
-  return (jugadores[mejor.jugadorId]||{}).equipo ?? 0;
+  if(empate)return'empate';
+  return(jugadores[mejor.jugadorId]||{}).equipo??0;
 }
 
-function resolverRonda(res) {
-  const g0 = res.filter(r=>r===0).length;
-  const g1 = res.filter(r=>r===1).length;
-  if (g0>=2) return 0;
-  if (g1>=2) return 1;
-  if (res[0]==='empate' && res.length>=2 && res[1]!=='empate') return res[1];
-  if (res.length===3) return 0;
+function resolverRonda(res){
+  const g0=res.filter(r=>r===0).length;
+  const g1=res.filter(r=>r===1).length;
+  if(g0>=2)return 0;
+  if(g1>=2)return 1;
+  if(res[0]==='empate'&&res.length>=2&&res[1]!=='empate')return res[1];
+  if(res.length===3)return 0; // todo empate: gana mano
   return null;
 }
 </script>
